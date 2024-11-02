@@ -15638,6 +15638,8 @@ self: super: with self; {
 
   textparser = callPackage ../development/python-modules/textparser { };
 
+  textstat = callPackage ../development/python-modules/textstat { };
+
   textual = callPackage ../development/python-modules/textual { };
 
   textual-dev = callPackage ../development/python-modules/textual-dev { };
