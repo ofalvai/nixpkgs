@@ -3,8 +3,6 @@
   rustPlatform,
   fetchFromGitHub,
   installShellFiles,
-  stdenv,
-  darwin,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -14,15 +12,13 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "ltratt";
     repo = "pizauth";
-    rev = "pizauth-${version}";
+    rev = "refs/tags/pizauth-${version}";
     hash = "sha256-9NezG644oCLTWHTdUaUpJbuwkJu3at/IGNH3FSxl/DI=";
   };
 
   cargoHash = "sha256-Lp5ovkQKShgT7EFvQ+5KE3eQWJEQAL68Bk1d+wUo+bc=";
 
   nativeBuildInputs = [ installShellFiles ];
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.Security ];
 
   postInstall = ''
     installShellCompletion --cmd pizauth \
