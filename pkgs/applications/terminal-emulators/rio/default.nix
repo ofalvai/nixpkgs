@@ -76,7 +76,9 @@ rustPlatform.buildRustPackage rec {
 
   runtimeDependencies = rlinkLibs;
 
-  buildInputs = rlinkLibs;
+  buildInputs = rlinkLibs ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.libutil
+  ];
 
   outputs = [ "out" "terminfo" ];
 
