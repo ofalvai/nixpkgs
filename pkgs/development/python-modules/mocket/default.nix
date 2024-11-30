@@ -3,7 +3,6 @@
   buildPythonPackage,
   fetchPypi,
   pythonOlder,
-  stdenv,
 
   # build-system
   hatchling,
@@ -30,6 +29,7 @@
   pytestCheckHook,
   redis,
   redis-server,
+  redisTestHook,
   requests,
   sure,
 
@@ -70,20 +70,12 @@ buildPythonPackage rec {
       pytest-cov-stub
       pytestCheckHook
       redis
+      redisTestHook
       requests
       sure
     ]
     ++ lib.optionals (pythonOlder "3.12") [ aiohttp ]
     ++ lib.flatten (builtins.attrValues optional-dependencies);
-
-  preCheck = lib.optionalString stdenv.hostPlatform.isLinux ''
-    ${redis-server}/bin/redis-server &
-    REDIS_PID=$!
-  '';
-
-  postCheck = lib.optionalString stdenv.hostPlatform.isLinux ''
-    kill $REDIS_PID
-  '';
 
   # Skip http tests, they require network access
   env.SKIP_TRUE_HTTP = true;
@@ -99,8 +91,6 @@ buildPythonPackage rec {
     # httpx read failure
     "test_no_dangling_fds"
   ];
-
-  disabledTestPaths = lib.optionals stdenv.hostPlatform.isDarwin [ "tests/main/test_redis.py" ];
 
   pythonImportsCheck = [ "mocket" ];
 
