@@ -19,6 +19,7 @@
   cargo,
   rustPlatform,
   rustc,
+  darwinMinVersionHook,
 }:
 
 stdenv.mkDerivation rec {
@@ -56,6 +57,9 @@ stdenv.mkDerivation rec {
       sqlite
       curl
       libarchive
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      (darwinMinVersionHook "10.13")
     ]
     ++ lib.optionals (!stdenv.isDarwin) [
       gpm
