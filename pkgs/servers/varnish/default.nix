@@ -16,6 +16,7 @@
   python3,
   makeWrapper,
   nixosTests,
+  fetchpatch2,
 }:
 
 let
@@ -55,6 +56,16 @@ let
         ++ lib.optional stdenv.hostPlatform.isLinux jemalloc;
 
       buildFlags = [ "localstatedir=/var/spool" ];
+
+      patches = [
+        # Remove unused `fdopen` in vendored zlib, which causes compilation failures with clang 18 on Darwin.
+        (fetchpatch2 {
+          url = "https://github.com/madler/zlib/commit/4bd9a71f3539b5ce47f0c67ab5e01f3196dc8ef9.patch?full_index=1";
+          extraPrefix = "lib/libvgz/";
+          stripLen = 1;
+          hash = "sha256-TuPToSbzb4fcGfADe5mCBm65u87tTrqPYZpvFn1x3aQ=";
+        })
+      ];
 
       postPatch = ''
         substituteInPlace bin/varnishtest/vtc_main.c --replace /bin/rm "${coreutils}/bin/rm"
