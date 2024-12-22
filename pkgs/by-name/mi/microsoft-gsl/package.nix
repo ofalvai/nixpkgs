@@ -26,7 +26,8 @@ stdenv.mkDerivation rec {
   buildInputs = [ gtest ];
 
   # error: unsafe buffer access
-  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang "-Wno-unsafe-buffer-usage";
+  # error: 'switch' missing 'default' label
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang "-Wno-unsafe-buffer-usage -Wno-switch-default";
 
   patches = [
     # nvcc doesn't recognize the "gsl" attribute namespace (microsoft/onnxruntime#13573)
