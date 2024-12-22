@@ -4,7 +4,7 @@
   fetchYarnDeps,
   fetchFromGitHub,
   fixup-yarn-lock,
-  nodejs,
+  nodejs_20,
   python3,
   makeBinaryWrapper,
   git,
@@ -12,6 +12,11 @@
   yarn,
   docker-compose,
 }:
+let
+  # node-pty doesn't support Node 22 yet
+  # Ref: https://github.com/microsoft/node-pty/issues/557#issuecomment-1332193541
+  nodejs = nodejs_20;
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "devcontainer";
   version = "0.71.0";
