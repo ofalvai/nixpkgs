@@ -6,8 +6,6 @@
   installShellFiles,
   makeBinaryWrapper,
   pkg-config,
-  libgit2,
-  zlib,
   buildPackages,
   versionCheckHook,
   withClipboard ? true,
@@ -31,13 +29,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     installShellFiles
     makeBinaryWrapper
     pkg-config
-  ];
-
-  buildInputs = [
-    libgit2
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    zlib
   ];
 
   buildFeatures = lib.optionals withTrash [ "trash" ] ++ lib.optionals withClipboard [ "clipboard" ];
