@@ -12,6 +12,11 @@
   webkitgtk_4_1,
   wrapGAppsHook3,
   gitUpdater,
+  maven,
+  fetchFromGitHub,
+  stdenv,
+  makeWrapper,
+  jre,
 }:
 let
   desktopItem = makeDesktopItem {
@@ -32,80 +37,100 @@ let
     webkitgtk_4_1
   ];
 in
-stdenvNoCC.mkDerivation (finalAttrs: {
+maven.buildMavenPackage rec {
   pname = "PortfolioPerformance";
   version = "0.77.3";
 
-  src = fetchurl {
-    url = "https://github.com/buchen/portfolio/releases/download/${finalAttrs.version}/PortfolioPerformance-${finalAttrs.version}-linux.gtk.x86_64.tar.gz";
-    hash = "sha256-e+1W2jT2YUM+udegvvupUv8RR+nHZSK/NMjMeu01uR8=";
+  src = fetchFromGitHub {
+    owner = "portfolio-performance";
+    repo = "portfolio";
+    rev = version;
+    sha256 = "sha256-z6sLHKOx19O8iD5/BvYCPGPOUPHuZqjPNxYkw+xqFuU=";
   };
 
+  mvnHash = "sha256-FbkdsyaRSYv4SLIyTHZAeC7RTXvaHWJilt19il8nGF8=";
+  mvnParameters = "-f portfolio-app/pom.xml";
+
   nativeBuildInputs = [
+    makeWrapper
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
     autoPatchelfHook
     wrapGAppsHook3
   ];
 
-  dontConfigure = true;
-  dontBuild = true;
+  installPhase =
+    ''
+        runHook preInstall
 
-  installPhase = ''
-    runHook preInstall
 
-    mkdir -p $out/portfolio
-    cp -av ./* $out/portfolio
+        mkdir -p $out/bin $out/share/portfolio
 
-    # Remove all jna plugins that does not match the system
-    rm -fR $out/portfolio/plugins/com.sun.jna*/com/sun/jna/{\
-    aix-ppc,\
-    aix-ppc64,\
-    darwin-aarch64,\
-    darwin-x86-64,\
-    dragonflybsd-x86-64,\
-    freebsd-aarch64,\
-    freebsd-x86,\
-    freebsd-x86-64,\
-    linux-aarch64,\
-    linux-arm,\
-    linux-armel,\
-    linux-loongarch64,\
-    linux-mips64el,\
-    linux-ppc,\
-    linux-ppc64le,\
-    linux-riscv64,\
-    linux-s390x,\
-    linux-x86,\
-    openbsd-x86,\
-    openbsd-x86-64,\
-    sunos-sparc,\
-    sunos-sparcv9,\
-    sunos-x86,\
-    sunos-x86-64,\
-    win32,\
-    win32-aarch64,\
-    win32-x86,\
-    win32-x86-64\
-    }
+        mkdir -p $out/Applications
+        mv portfolio-product/target/products/name.abuchen.portfolio.product/macosx/cocoa/aarch64/PortfolioPerformance.app/Contents/Eclipse/plugins/* $out/share/portfolio/
+        mv portfolio-product/target/products/name.abuchen.portfolio.product/macosx/cocoa/aarch64/PortfolioPerformance.app $out/Applications/
+        ln -s $out/Applications/PortfolioPerformance.app/Contents/MacOS/PortfolioPerformance $out/bin/portfolio
 
-    makeWrapper $out/portfolio/PortfolioPerformance $out/bin/portfolio \
-      --prefix LD_LIBRARY_PATH : "${runtimeLibs}" \
-      --prefix PATH : ${openjdk21}/bin
+        makeWrapper ${jre}/bin/java $out/bin/portfolio \
+          --add-flags "-jar $out/share/portfolio/name.abuchen.portfolio.bootstrap_${version}.jar"
 
-    # Create desktop item
-    mkdir -p $out/share/applications
-    cp ${desktopItem}/share/applications/* $out/share/applications
-    mkdir -p $out/share/pixmaps
-    ln -s $out/portfolio/icon.xpm $out/share/pixmaps/portfolio.xpm
+      #   # Remove all jna plugins that does not match the system
+      #   rm -fR $out/portfolio/plugins/com.sun.jna*/com/sun/jna/{\
+      #   aix-ppc,\
+      #   aix-ppc64,\
+      #   darwin-aarch64,\
+      #   darwin-x86-64,\
+      #   dragonflybsd-x86-64,\
+      #   freebsd-aarch64,\
+      #   freebsd-x86,\
+      #   freebsd-x86-64,\
+      #   linux-aarch64,\
+      #   linux-arm,\
+      #   linux-armel,\
+      #   linux-loongarch64,\
+      #   linux-mips64el,\
+      #   linux-ppc,\
+      #   linux-ppc64le,\
+      #   linux-riscv64,\
+      #   linux-s390x,\
+      #   linux-x86,\
+      #   openbsd-x86,\
+      #   openbsd-x86-64,\
+      #   sunos-sparc,\
+      #   sunos-sparcv9,\
+      #   sunos-x86,\
+      #   sunos-x86-64,\
+      #   win32,\
+      #   win32-aarch64,\
+      #   win32-x86,\
+      #   win32-x86-64\
+      #   }
 
-    runHook postInstall
-  '';
 
+
+      runHook postInstall
+    ''
+    + lib.optionalString stdenv.hostPlatform.isLinux ''
+      # Create desktop item
+      mkdir -p $out/share/applications
+      cp ${desktopItem}/share/applications/* $out/share/applications
+      mkdir -p $out/share/pixmaps
+      ln -s $out/portfolio/icon.xpm $out/share/pixmaps/portfolio.xpm
+
+    '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+
+    '';
+
+
+          #   makeWrapper $out/portfolio/PortfolioPerformance $out/bin/portfolio \
+      #     --prefix LD_LIBRARY_PATH : "${runtimeLibs}" \
+      #     --prefix PATH : ${openjdk21}/bin
+
+  # TODO: mvnHash calc
   passthru.updateScript = gitUpdater { url = "https://github.com/buchen/portfolio.git"; };
 
   meta = {
     description = "Simple tool to calculate the overall performance of an investment portfolio";
     homepage = "https://www.portfolio-performance.info/";
-    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
     license = lib.licenses.epl10;
     maintainers = with lib.maintainers; [
       kilianar
@@ -113,6 +138,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       shawn8901
     ];
     mainProgram = "portfolio";
-    platforms = [ "x86_64-linux" ];
+    platforms = lib.platforms.unix;
   };
-})
+}
