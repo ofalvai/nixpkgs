@@ -34,9 +34,6 @@ buildPythonPackage {
       --replace "ctypes.util.find_library('exempi')" "'${exempi}/lib/libexempi${stdenv.hostPlatform.extensions.sharedLibrary}'"
   '';
 
-  # hangs on darwin + sandbox
-  doCheck = !stdenv.hostPlatform.isDarwin;
-
   preCheck = ''
     rm test/{test_exempi,test_files}.py
   '';

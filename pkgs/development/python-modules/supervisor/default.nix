@@ -36,7 +36,9 @@ buildPythonPackage rec {
 
   # wants to write to /tmp/foo which is likely already owned by another
   # nixbld user on hydra
-  doCheck = !stdenv.hostPlatform.isDarwin;
+  # doCheck = !stdenv.hostPlatform.isDarwin;
+  # TODO: 5 more failures
+  __darwinAllowLocalNetworking = true;
 
   nativeCheckInputs = [
     mock

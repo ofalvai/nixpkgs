@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
     openssl
   ];
 
-  doCheck = !stdenv.hostPlatform.isDarwin; # tests hang
+  # doCheck = !stdenv.hostPlatform.isDarwin; # tests hang
 
   # Failing test
   postPatch = ''

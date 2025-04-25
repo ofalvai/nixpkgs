@@ -23,8 +23,6 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [ pytestCheckHook ];
 
-  doCheck = !stdenv.hostPlatform.isDarwin;
-
   pythonImportsCheck = [ "simplejson" ];
 
   meta = with lib; {

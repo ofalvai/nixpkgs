@@ -69,8 +69,6 @@ buildPythonPackage rec {
   ]
   ++ optional-dependencies.http3;
 
-  doCheck = !stdenv.hostPlatform.isDarwin;
-
   preCheck = ''
     # Some tests depends on sanic on PATH
     PATH="$out/bin:$PATH"
@@ -91,6 +89,9 @@ buildPythonPackage rec {
     "test_input_is_dir"
     # Racy, e.g. Address already in use
     "test_logger_vhosts"
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    # AF_UNIX path too long
+    "test_configure_socket"
   ];
 
   disabledTestPaths = [

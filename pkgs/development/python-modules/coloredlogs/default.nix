@@ -48,7 +48,7 @@ buildPythonPackage rec {
 
   # capturer is broken on darwin / py38, so we skip the test until a fix for
   # https://github.com/xolox/python-capturer/issues/10 is released.
-  doCheck = !stdenv.hostPlatform.isDarwin;
+  # doCheck = !stdenv.hostPlatform.isDarwin;
 
   preCheck = ''
     # Required for the CLI test

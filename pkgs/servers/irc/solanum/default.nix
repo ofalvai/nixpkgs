@@ -67,7 +67,7 @@ stdenv.mkDerivation {
     sqlite
   ];
 
-  doCheck = !stdenv.hostPlatform.isDarwin;
+  doCheck = true;
 
   enableParallelBuilding = true;
   # Missing install depends:

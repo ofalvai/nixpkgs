@@ -37,8 +37,6 @@ buildPythonPackage {
   ]
   ++ uvicorn.optional-dependencies.standard;
 
-  doCheck = !stdenv.hostPlatform.isDarwin;
-
   __darwinAllowLocalNetworking = true;
 
   disabledTests = [
