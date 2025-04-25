@@ -80,9 +80,6 @@ buildPythonPackage rec {
     parameterized
   ];
 
-  # FAILED tests/test_event_loops.py::TwistedEventLoopTest::test_run - AssertionError: 'callback called with future outcome: True' not found in ['...
-  doCheck = !stdenv.hostPlatform.isDarwin;
-
   pythonImportsCheck = [ "pyfx" ];
 
   meta = with lib; {
