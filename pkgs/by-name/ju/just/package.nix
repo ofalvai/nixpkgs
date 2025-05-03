@@ -80,6 +80,7 @@ rustPlatform.buildRustPackage rec {
     "--skip=config::tests::show_arguments" # interferes with JUST_CHOOSER being set
     "--skip=edit::editor_precedence" # trying to run "vim" fails as there's no /usr/bin/env or which in the sandbox to find vim and the dependency is not easily patched
     "--skip=shebang::run_shebang" # test case very rarely fails with "Text file busy"
+    "--sip=edit::editor_working_director" # test case very rarely fails with "Text file busy"
   ];
 
   postInstall =
