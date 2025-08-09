@@ -34,9 +34,12 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [ setuptools ];
 
-  # wants to write to /tmp/foo which is likely already owned by another
-  # nixbld user on hydra
-  doCheck = !stdenv.hostPlatform.isDarwin;
+  __darwinAllowLocalNetworking = true;
+
+  disabledTests = lib.optionals stdenv.hostPlatform.isDarwin [
+    # Raises different exception on macOS than what is asserted
+    "test_check_execv_args_notexecutable"
+  ];
 
   nativeCheckInputs = [
     mock
